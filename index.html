@@ -11,7 +11,7 @@
     <div>
       <p class="eyebrow">Unified Investment Visualization Platform</p>
       <h1>Portfolio Snapshot Demo</h1>
-      <p class="lede">Add tickers with their shares and price per unit to see your aggregate portfolio value and allocation weights by asset class.</p>
+      <p class="lede">Add tickers with their market value to see your aggregate portfolio value and allocation weights.</p>
     </div>
     <div class="pill">Demo</div>
   </header>
@@ -25,28 +25,12 @@
           <input id="ticker" name="ticker" type="text" required placeholder="e.g., AAPL" maxlength="10" />
         </label>
         <label class="field">
-          <span>Asset class</span>
-          <select id="asset-class" name="asset-class" required>
-            <option value="Equity" selected>Equity</option>
-            <option value="Cash - USD">Cash - USD</option>
-            <option value="Cash - CNY">Cash - CNY</option>
-            <option value="Gold">Gold</option>
-            <option value="Silver">Silver</option>
-            <option value="Bitcoin (BTC)">Bitcoin (BTC)</option>
-            <option value="Ethereum (ETH)">Ethereum (ETH)</option>
-          </select>
-        </label>
-        <label class="field">
-          <span>Number of shares/units</span>
-          <input id="shares" name="shares" type="number" required min="0" step="0.0001" placeholder="10" />
-        </label>
-        <label class="field">
-          <span>Price per unit (base currency)</span>
-          <input id="price" name="price" type="number" required min="0" step="0.01" placeholder="150" />
+          <span>Market value (base currency)</span>
+          <input id="value" name="value" type="number" required min="0" step="0.01" placeholder="12500" />
         </label>
         <button type="submit" class="primary">Add holding</button>
       </form>
-      <p class="helper">Weights update automatically as you edit shares, prices, or add/remove holdings.</p>
+      <p class="helper">Weights update automatically as you edit values or add/remove holdings.</p>
     </section>
 
     <section class="panel stats">
@@ -70,16 +54,13 @@
           <thead>
             <tr>
               <th>Ticker</th>
-              <th>Asset class</th>
-              <th class="numeric">Shares</th>
-              <th class="numeric">Price</th>
               <th class="numeric">Value</th>
               <th class="numeric">Weight</th>
               <th></th>
             </tr>
           </thead>
           <tbody id="holdings-body">
-            <tr class="empty"><td colspan="7">No holdings yet — add your first ticker to see allocations.</td></tr>
+            <tr class="empty"><td colspan="4">No holdings yet — add your first ticker to see allocations.</td></tr>
           </tbody>
         </table>
       </div>
