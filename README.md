@@ -63,21 +63,23 @@ Individuals with investments spread across multiple platforms who want a consoli
 - Audit logs for access and data changes.
 - Regional data residency and GDPR/CCPA readiness where applicable.
 
-## Public portfolio snapshot
-A lightweight static experience is included to show the manual ticker entry flow and real-time aggregate calculations. It can be hosted anywhere that serves static files (e.g., GitHub Pages, Netlify, or an S3 bucket) without any backend.
+## Demo: manual portfolio capture
+A lightweight static demo is included to show the manual ticker entry flow and real-time aggregate calculations.
 
-### Publish it publicly
-1. Commit or copy `index.html`, `style.css`, and `app.js` into a public repository.
-2. Enable GitHub Pages ("Settings" → "Pages") and point it at the repository root or `main` branch. The site will be live at `https://<username>.github.io/<repo>` once the Pages build finishes.
-3. Alternatively, drop the same files into a static host such as Netlify or Vercel and select a static site deployment with no build step.
-4. Share the resulting URL—viewers can add ticker symbols, select an asset class, and enter shares plus price per unit. The page shows aggregate portfolio value and per-position weights, supports inline edits, and offers a reset to sample data (including cash, gold, silver, and major crypto).
+### How to run locally
+1. From the repository root, start a simple HTTP server:
+   ```bash
+   python -m http.server 8000
+   ```
+2. Open http://localhost:8000 in your browser.
+3. Add ticker symbols and their market values. The demo will show aggregate portfolio value and per-position weights. You can edit values inline or reset to sample data at any time.
 
-### What the page covers
-- Manual ticker entry with asset class selection
-- Share and price inputs with inline edits and deletion
+### What the demo covers
+- Manual ticker/value entry
+- Inline edits and deletion
 - Aggregate portfolio value and allocation weights that respond instantly to changes
 
-### Next steps for the page
+### Next steps for the demo
 - Persist holdings to local storage
 - Add quantity/cost basis fields and basic P&L
 - Expand visuals with allocation charts and time-series performance

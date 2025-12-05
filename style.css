@@ -98,7 +98,7 @@ p {
 
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(160px, 1fr)) auto;
+  grid-template-columns: 1fr 1fr auto;
   gap: 12px;
   align-items: end;
 }
@@ -121,20 +121,9 @@ input {
   transition: border-color 0.15s ease;
 }
 
-input:focus,
-select:focus {
+input:focus {
   outline: none;
   border-color: var(--accent);
-}
-
-select {
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--text);
-  font-size: 16px;
 }
 
 button {
@@ -195,7 +184,7 @@ th {
 }
 
 .value-input {
-  width: 120px;
+  width: 140px;
 }
 
 .row-actions {

@@ -3,17 +3,8 @@ const aggregateEl = document.getElementById('aggregate');
 const holdingCountEl = document.getElementById('holding-count');
 const form = document.getElementById('holding-form');
 const tickerInput = document.getElementById('ticker');
-const assetClassInput = document.getElementById('asset-class');
-const sharesInput = document.getElementById('shares');
-const priceInput = document.getElementById('price');
+const valueInput = document.getElementById('value');
 const resetButton = document.getElementById('reset');
-
-function generateId() {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
-  return `id-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-}
 
 const currencyFormatter = new Intl.NumberFormat(undefined, {
   style: 'currency',
@@ -22,19 +13,13 @@ const currencyFormatter = new Intl.NumberFormat(undefined, {
 });
 
 let holdings = [
-  { id: generateId(), ticker: 'AAPL', assetClass: 'Equity', shares: 50, price: 190 },
-  { id: generateId(), ticker: 'MSFT', assetClass: 'Equity', shares: 30, price: 320 },
-  { id: generateId(), ticker: 'VWRA.L', assetClass: 'Equity', shares: 60, price: 90 },
-  { id: generateId(), ticker: 'USD', assetClass: 'Cash - USD', shares: 2500, price: 1 },
-  { id: generateId(), ticker: 'CNY', assetClass: 'Cash - CNY', shares: 5000, price: 0.14 },
-  { id: generateId(), ticker: 'XAU', assetClass: 'Gold', shares: 2, price: 1950 },
-  { id: generateId(), ticker: 'XAG', assetClass: 'Silver', shares: 100, price: 23 },
-  { id: generateId(), ticker: 'BTC', assetClass: 'Bitcoin (BTC)', shares: 0.5, price: 27000 },
-  { id: generateId(), ticker: 'ETH', assetClass: 'Ethereum (ETH)', shares: 1.2, price: 1700 },
+  { id: crypto.randomUUID(), ticker: 'AAPL', value: 12500 },
+  { id: crypto.randomUUID(), ticker: 'MSFT', value: 9800 },
+  { id: crypto.randomUUID(), ticker: 'VWRA.L', value: 5400 },
 ];
 
 function render() {
-  const total = holdings.reduce((sum, h) => sum + h.shares * h.price, 0);
+  const total = holdings.reduce((sum, h) => sum + h.value, 0);
   aggregateEl.textContent = total ? currencyFormatter.format(total) : '—';
   holdingCountEl.textContent = holdings.length;
 
@@ -43,59 +28,33 @@ function render() {
   if (!holdings.length) {
     const row = document.createElement('tr');
     row.className = 'empty';
-    row.innerHTML = '<td colspan="7">No holdings yet — add your first ticker to see allocations.</td>';
+    row.innerHTML = '<td colspan="4">No holdings yet — add your first ticker to see allocations.</td>';
     holdingsBody.appendChild(row);
     return;
   }
 
   holdings.forEach((holding) => {
-    const value = holding.shares * holding.price;
-    const weight = total ? (value / total) * 100 : 0;
+    const weight = total ? (holding.value / total) * 100 : 0;
     const row = document.createElement('tr');
 
     const tickerCell = document.createElement('td');
     tickerCell.textContent = holding.ticker;
     row.appendChild(tickerCell);
 
-    const assetClassCell = document.createElement('td');
-    assetClassCell.textContent = holding.assetClass;
-    row.appendChild(assetClassCell);
-
-    const sharesCell = document.createElement('td');
-    sharesCell.className = 'numeric';
-    const sharesField = document.createElement('input');
-    sharesField.type = 'number';
-    sharesField.className = 'value-input';
-    sharesField.min = '0';
-    sharesField.step = '0.0001';
-    sharesField.value = holding.shares;
-    sharesField.addEventListener('input', (event) => {
-      const parsed = parseFloat(event.target.value);
-      holding.shares = Number.isFinite(parsed) ? parsed : 0;
-      render();
-    });
-    sharesCell.appendChild(sharesField);
-    row.appendChild(sharesCell);
-
-    const priceCell = document.createElement('td');
-    priceCell.className = 'numeric';
-    const priceField = document.createElement('input');
-    priceField.type = 'number';
-    priceField.className = 'value-input';
-    priceField.min = '0';
-    priceField.step = '0.01';
-    priceField.value = holding.price;
-    priceField.addEventListener('input', (event) => {
-      const parsed = parseFloat(event.target.value);
-      holding.price = Number.isFinite(parsed) ? parsed : 0;
-      render();
-    });
-    priceCell.appendChild(priceField);
-    row.appendChild(priceCell);
-
     const valueCell = document.createElement('td');
     valueCell.className = 'numeric';
-    valueCell.textContent = currencyFormatter.format(value);
+    const valueInput = document.createElement('input');
+    valueInput.type = 'number';
+    valueInput.className = 'value-input';
+    valueInput.min = '0';
+    valueInput.step = '0.01';
+    valueInput.value = holding.value;
+    valueInput.addEventListener('input', (event) => {
+      const parsed = parseFloat(event.target.value);
+      holding.value = Number.isFinite(parsed) ? parsed : 0;
+      render();
+    });
+    valueCell.appendChild(valueInput);
     row.appendChild(valueCell);
 
     const weightCell = document.createElement('td');
@@ -123,16 +82,14 @@ function render() {
 form.addEventListener('submit', (event) => {
   event.preventDefault();
   const ticker = tickerInput.value.trim().toUpperCase();
-  const assetClass = assetClassInput.value;
-  const shares = parseFloat(sharesInput.value);
-  const price = parseFloat(priceInput.value);
+  const value = parseFloat(valueInput.value);
 
-  if (!ticker || !assetClass || !Number.isFinite(shares) || !Number.isFinite(price) || shares < 0 || price < 0) {
+  if (!ticker || !Number.isFinite(value) || value < 0) {
     return;
   }
 
   holdings = [
-    { id: generateId(), ticker, assetClass, shares, price },
+    { id: crypto.randomUUID(), ticker, value },
     ...holdings,
   ];
 
@@ -143,15 +100,9 @@ form.addEventListener('submit', (event) => {
 
 resetButton.addEventListener('click', () => {
   holdings = [
-    { id: generateId(), ticker: 'AAPL', assetClass: 'Equity', shares: 50, price: 190 },
-    { id: generateId(), ticker: 'MSFT', assetClass: 'Equity', shares: 30, price: 320 },
-    { id: generateId(), ticker: 'VWRA.L', assetClass: 'Equity', shares: 60, price: 90 },
-    { id: generateId(), ticker: 'USD', assetClass: 'Cash - USD', shares: 2500, price: 1 },
-    { id: generateId(), ticker: 'CNY', assetClass: 'Cash - CNY', shares: 5000, price: 0.14 },
-    { id: generateId(), ticker: 'XAU', assetClass: 'Gold', shares: 2, price: 1950 },
-    { id: generateId(), ticker: 'XAG', assetClass: 'Silver', shares: 100, price: 23 },
-    { id: generateId(), ticker: 'BTC', assetClass: 'Bitcoin (BTC)', shares: 0.5, price: 27000 },
-    { id: generateId(), ticker: 'ETH', assetClass: 'Ethereum (ETH)', shares: 1.2, price: 1700 },
+    { id: crypto.randomUUID(), ticker: 'AAPL', value: 12500 },
+    { id: crypto.randomUUID(), ticker: 'MSFT', value: 9800 },
+    { id: crypto.randomUUID(), ticker: 'VWRA.L', value: 5400 },
   ];
   render();
 });
