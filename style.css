@@ -98,14 +98,9 @@ p {
 
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(160px, 1fr)) auto;
+  grid-template-columns: 1fr 1fr auto;
   gap: 12px;
   align-items: end;
-}
-
-.form-grid.tight {
-  grid-template-columns: minmax(280px, 1fr);
-  align-items: start;
 }
 
 .field span {
@@ -126,20 +121,9 @@ input {
   transition: border-color 0.15s ease;
 }
 
-input:focus,
-select:focus {
+input:focus {
   outline: none;
   border-color: var(--accent);
-}
-
-select {
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--text);
-  font-size: 16px;
 }
 
 button {
@@ -174,12 +158,6 @@ button.ghost {
   color: var(--muted);
 }
 
-.status {
-  margin-top: 8px;
-  color: var(--muted);
-  font-size: 14px;
-}
-
 .table-wrapper {
   overflow: auto;
 }
@@ -206,7 +184,7 @@ th {
 }
 
 .value-input {
-  width: 120px;
+  width: 140px;
 }
 
 .row-actions {
