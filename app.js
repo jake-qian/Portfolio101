@@ -12,7 +12,10 @@ const priceStatusEl = document.getElementById('price-status');
 
 const API_BASE = 'https://www.alphavantage.co/query';
 const DEMO_KEY = 'demo';
-apiKeyInput.value = DEMO_KEY;
+const STORAGE_KEYS = {
+  holdings: 'portfolio_holdings_v1',
+  apiKey: 'portfolio_api_key_v1',
+};
 
 function generateId() {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
@@ -73,19 +76,84 @@ function getTotalValue() {
   return holdings.reduce((sum, h) => sum + h.shares * livePrice(h), 0);
 }
 
-let holdings = [
-  { id: generateId(), ticker: 'AAPL', assetClass: 'Equity', shares: 50, price: 190 },
-  { id: generateId(), ticker: 'MSFT', assetClass: 'Equity', shares: 30, price: 320 },
-  { id: generateId(), ticker: 'VWRA.L', assetClass: 'Equity', shares: 60, price: 90 },
-  { id: generateId(), ticker: 'USD', assetClass: 'Cash - USD', shares: 2500, price: 1 },
-  { id: generateId(), ticker: 'CNY', assetClass: 'Cash - CNY', shares: 5000, price: 0.14 },
-  { id: generateId(), ticker: 'XAU', assetClass: 'Gold', shares: 2, price: 1950 },
-  { id: generateId(), ticker: 'XAG', assetClass: 'Silver', shares: 100, price: 23 },
-  { id: generateId(), ticker: 'BTC', assetClass: 'Bitcoin (BTC)', shares: 0.5, price: 27000 },
-  { id: generateId(), ticker: 'ETH', assetClass: 'Ethereum (ETH)', shares: 1.2, price: 1700 },
+function loadHoldings() {
+  if (typeof localStorage === 'undefined') return null;
+  try {
+    const saved = localStorage.getItem(STORAGE_KEYS.holdings);
+    if (!saved) return null;
+    const parsed = JSON.parse(saved);
+    if (!Array.isArray(parsed)) return null;
+    return parsed
+      .map((item) => ({
+        id: item.id || generateId(),
+        ticker: String(item.ticker || '').toUpperCase(),
+        assetClass: item.assetClass || 'Equity',
+        shares: Number.isFinite(parseFloat(item.shares)) ? parseFloat(item.shares) : 0,
+        price: Number.isFinite(parseFloat(item.price)) ? parseFloat(item.price) : 0,
+      }))
+      .filter((item) => item.ticker && item.assetClass);
+  } catch (error) {
+    console.warn('Unable to load holdings from storage', error);
+    return null;
+  }
+}
+
+function persistHoldings() {
+  if (typeof localStorage === 'undefined') return;
+  try {
+    const serializable = holdings.map(({ id, ticker, assetClass, shares, price }) => ({
+      id,
+      ticker,
+      assetClass,
+      shares,
+      price,
+    }));
+    localStorage.setItem(STORAGE_KEYS.holdings, JSON.stringify(serializable));
+  } catch (error) {
+    console.warn('Unable to save holdings to storage', error);
+  }
+}
+
+function loadApiKey() {
+  if (typeof localStorage === 'undefined') return '';
+  try {
+    const saved = localStorage.getItem(STORAGE_KEYS.apiKey);
+    return saved || '';
+  } catch {
+    return '';
+  }
+}
+
+function persistApiKey(value) {
+  if (typeof localStorage === 'undefined') return;
+  try {
+    localStorage.setItem(STORAGE_KEYS.apiKey, value);
+  } catch (error) {
+    console.warn('Unable to save API key to storage', error);
+  }
+}
+
+const sampleHoldings = [
+  { ticker: 'AAPL', assetClass: 'Equity', shares: 50, price: 190 },
+  { ticker: 'MSFT', assetClass: 'Equity', shares: 30, price: 320 },
+  { ticker: 'VWRA.L', assetClass: 'Equity', shares: 60, price: 90 },
+  { ticker: 'USD', assetClass: 'Cash - USD', shares: 2500, price: 1 },
+  { ticker: 'CNY', assetClass: 'Cash - CNY', shares: 5000, price: 0.14 },
+  { ticker: 'XAU', assetClass: 'Gold', shares: 2, price: 1950 },
+  { ticker: 'XAG', assetClass: 'Silver', shares: 100, price: 23 },
+  { ticker: 'BTC', assetClass: 'Bitcoin (BTC)', shares: 0.5, price: 27000 },
+  { ticker: 'ETH', assetClass: 'Ethereum (ETH)', shares: 1.2, price: 1700 },
 ];
 
+function getSampleHoldings() {
+  return sampleHoldings.map((h) => ({ ...h, id: generateId() }));
+}
+
+let holdings = loadHoldings() || getSampleHoldings();
+apiKeyInput.value = loadApiKey() || DEMO_KEY;
+
 function render() {
+  persistHoldings();
   const total = getTotalValue();
   aggregateEl.textContent = total ? currencyFormatter.format(total) : '—';
   holdingCountEl.textContent = holdings.length;
@@ -192,6 +260,7 @@ async function hydrateHoldingPrice(holding) {
   let success = false;
   if (quote && Number.isFinite(quote.price)) {
     stillPresent.marketPrice = quote.price;
+    stillPresent.price = quote.price;
     stillPresent.priceSymbol = quote.symbol;
     stillPresent.priceError = undefined;
     success = true;
@@ -240,23 +309,17 @@ form.addEventListener('submit', (event) => {
 });
 
 resetButton.addEventListener('click', () => {
-  holdings = [
-    { id: generateId(), ticker: 'AAPL', assetClass: 'Equity', shares: 50, price: 190 },
-    { id: generateId(), ticker: 'MSFT', assetClass: 'Equity', shares: 30, price: 320 },
-    { id: generateId(), ticker: 'VWRA.L', assetClass: 'Equity', shares: 60, price: 90 },
-    { id: generateId(), ticker: 'USD', assetClass: 'Cash - USD', shares: 2500, price: 1 },
-    { id: generateId(), ticker: 'CNY', assetClass: 'Cash - CNY', shares: 5000, price: 0.14 },
-    { id: generateId(), ticker: 'XAU', assetClass: 'Gold', shares: 2, price: 1950 },
-    { id: generateId(), ticker: 'XAG', assetClass: 'Silver', shares: 100, price: 23 },
-    { id: generateId(), ticker: 'BTC', assetClass: 'Bitcoin (BTC)', shares: 0.5, price: 27000 },
-    { id: generateId(), ticker: 'ETH', assetClass: 'Ethereum (ETH)', shares: 1.2, price: 1700 },
-  ];
+  holdings = getSampleHoldings();
   render();
   refreshAllPrices();
 });
 
 refreshPricesBtn.addEventListener('click', () => {
   refreshAllPrices();
+});
+
+apiKeyInput.addEventListener('input', () => {
+  persistApiKey(apiKeyInput.value.trim());
 });
 
 render();
