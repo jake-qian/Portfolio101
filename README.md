@@ -2,7 +2,7 @@
 
 A production-ready Next.js (App Router) portal that fetches live prices from Yahoo Finance server-side every 3 hours, stores snapshots in Postgres via Prisma, and exposes a simple UI plus JSON API. Cron-driven refreshes run in production (Vercel) without any manual API keys.
 
-**Live portal:** https://your-vercel-deployment-url.vercel.app
+**Live portal:** https://portfolio101-fengqian.vercel.app/
 
 ## Features
 - Server-side Yahoo Finance pricing via `yahoo-finance2` (no browser CORS issues, no API key needed).
